@@ -104,7 +104,7 @@ void Battery::run(){
   chargingCurrent = 0.9 * chargingCurrent + 0.1 * batteryDriver.getChargeCurrent();    
 	
   if (!chargerConnectedState){
-	  if (chargingVoltage > 7){
+	  if (chargingVoltage > 5){
       chargerConnectedState = true;		    
 		  DEBUGLN(F("CHARGER CONNECTED"));      	              
       buzzer.sound(SND_OVERCURRENT, true);        

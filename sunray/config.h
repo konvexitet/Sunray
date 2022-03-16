@@ -73,9 +73,9 @@ Also, you may choose the serial port below for serial monitor output (CONSOLE).
 // see Wiki for wiring, how to position the module, and to configure the I2C pullup jumpers:   
 // https://wiki.ardumower.de/index.php?title=Ardumower_Sunray#IMU.2C_sensor_fusion
 
-//#define MPU6050
+#define MPU6050
 //#define MPU9150
-#define MPU9250   // also choose this for MPU9255
+//#define MPU9250   // also choose this for MPU9255
 //#define BNO055
 
 // should the mower turn off if IMU is tilt over? (yes: uncomment line, no: comment line)

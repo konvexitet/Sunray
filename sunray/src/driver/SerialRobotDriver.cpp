@@ -18,10 +18,6 @@ void SerialRobotDriver::begin(){
   chargeVoltage = 0;
   chargeCurrent = 0;  
   batteryVoltage = 0;
-  mowCurr = 0;
-  motorLeftCurr = 0;
-  motorRightCurr = 0;
-  batteryTemp = 0;
   triggeredLeftBumper = false;
   triggeredRightBumper = false;
   triggeredRain = false;
@@ -30,11 +26,6 @@ void SerialRobotDriver::begin(){
   motorFault = false;
   receivedEncoders = false;
   nextSummaryTime = 0;
-  nextConsoleTime = 0;
-  cmdMotorResponseCounter = 0;
-  cmdSummaryResponseCounter = 0;
-  cmdMotorCounter = 0;
-  cmdSummaryCounter = 0;
 }
 
 void SerialRobotDriver::sendRequest(String s){
@@ -45,16 +36,15 @@ void SerialRobotDriver::sendRequest(String s){
   s += String(crc, HEX);  
   s += F("\r\n");             
   //CONSOLE.print(s);  
-  //cmdResponse = s;
-  COMM.print(s);  
+  cmdResponse = s;
+  COMM.print(s);
 }
 
 
 void SerialRobotDriver::requestSummary(){
   String req;
-  req += "AT+S";  
+  req += "AT+S";
   sendRequest(req);
-  cmdSummaryCounter++;
 }
 
 void SerialRobotDriver::requestMotorPwm(int leftPwm, int rightPwm, int mowPwm){
@@ -67,9 +57,8 @@ void SerialRobotDriver::requestMotorPwm(int leftPwm, int rightPwm, int mowPwm){
   if (abs(mowPwm) > 0)
     req += "1";
   else
-    req += "0";  
+    req += "0";
   sendRequest(req);
-  cmdMotorCounter++;
 }
 
 void SerialRobotDriver::motorResponse(){
@@ -105,7 +94,6 @@ void SerialRobotDriver::motorResponse(){
   if (triggeredStopButton){
     CONSOLE.println("STOPBUTTON");
   }
-  cmdMotorResponseCounter++;
   receivedEncoders=true;
 }
 
@@ -135,22 +123,11 @@ void SerialRobotDriver::summaryResponse(){
         triggeredRain = (intValue != 0);
       } else if (counter == 7){
         motorFault = (intValue != 0);
-      } else if (counter == 8){
-        mowCurr = floatValue;
-      } else if (counter == 9){
-        motorLeftCurr = floatValue;
-      } else if (counter == 10){
-        motorRightCurr = floatValue;
-      } else if (counter == 11){
-        batteryTemp = floatValue;
       } 
       counter++;
       lastCommaIdx = idx;
     }    
   }
-  cmdSummaryResponseCounter++;
-  //CONSOLE.print("batteryTemp=");
-  //CONSOLE.println(batteryTemp);
 }
 
 // process response
@@ -215,20 +192,6 @@ void SerialRobotDriver::run(){
     nextSummaryTime = millis() + 500;
     requestSummary();
   }
-  if (millis() > nextConsoleTime){
-    nextConsoleTime = millis() + 1000;
-    if ( (abs(cmdMotorResponseCounter) < 17) || (cmdSummaryResponseCounter == 0) ){
-      CONSOLE.print("WARN: SerialRobot unmet communication frequency: motorFreq=");
-      CONSOLE.print(cmdMotorCounter);
-      CONSOLE.print("/");
-      CONSOLE.print(cmdMotorResponseCounter);
-      CONSOLE.print("  summaryFreq=");
-      CONSOLE.print(cmdSummaryCounter);
-      CONSOLE.print("/");
-      CONSOLE.println(cmdSummaryResponseCounter);
-    }   
-    cmdMotorCounter=cmdMotorResponseCounter=cmdSummaryCounter=cmdSummaryResponseCounter=0;
-  }
 }
 
 
@@ -254,25 +217,18 @@ void SerialMotorDriver::getMotorFaults(bool &leftFault, bool &rightFault, bool &
   leftFault = serialRobot.motorFault;
   rightFault = serialRobot.motorFault;
   if (serialRobot.motorFault){
-    CONSOLE.println("serialRobot: motorFault");
+    //CONSOLE.println("serialRobot: motorFault");
   }
   mowFault = false;
 }
 
 void SerialMotorDriver::resetMotorFaults(){
-  CONSOLE.println("serialRobot: resetting motor fault");
-  //serialRobot.requestMotorPwm(1, 1, 0);
-  //delay(1);
-  //serialRobot.requestMotorPwm(0, 0, 0);
 }
 
-void SerialMotorDriver::getMotorCurrent(float &leftCurrent, float &rightCurrent, float &mowCurrent) {  
-  //leftCurrent = 0.5;
-  //rightCurrent = 0.5;
-  //mowCurrent = 0.8;
-  leftCurrent = serialRobot.motorLeftCurr;
-  rightCurrent = serialRobot.motorRightCurr;
-  mowCurrent = serialRobot.mowCurr;
+void SerialMotorDriver::getMotorCurrent(float &leftCurrent, float &rightCurrent, float &mowCurrent) {
+  leftCurrent = 0.5;
+  rightCurrent = 0.5;
+  mowCurrent = 0.8;
 }
 
 void SerialMotorDriver::getMotorEncoderTicks(int &leftTicks, int &rightTicks, int &mowTicks){

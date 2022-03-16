@@ -22,10 +22,6 @@ class SerialRobotDriver {
     float batteryVoltage;
     float chargeVoltage;
     float chargeCurrent;
-    float mowCurr;
-    float motorLeftCurr;
-    float motorRightCurr;
-    float batteryTemp;
     bool triggeredLeftBumper;
     bool triggeredRightBumper;
     bool triggeredLift;
@@ -35,15 +31,10 @@ class SerialRobotDriver {
     void run();
     void requestMotorPwm(int leftPwm, int rightPwm, int mowPwm);
     void requestSummary();
-  protected:    
+  protected:
     String cmd;
-    String cmdResponse;    
+    String cmdResponse;
     unsigned long nextSummaryTime;
-    unsigned long nextConsoleTime;
-    int cmdMotorCounter;
-    int cmdSummaryCounter;
-    int cmdMotorResponseCounter;
-    int cmdSummaryResponseCounter;
     void sendRequest(String s);
     void processComm();
     void processResponse(bool checkCrc);

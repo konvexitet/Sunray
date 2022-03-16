@@ -344,17 +344,12 @@ void cmdStressTest(){
   maps.stressTest();  
 }
 
-// perform hang test (watchdog should trigger and restart robot)
+// perform hang test (watchdog should trigger)
 void cmdTriggerWatchdog(){
   String s = F("Y");
   cmdAnswer(s);  
   setOperation(OP_IDLE);
-  #ifdef __linux__
-    Process p;
-    p.runShellCommand("reboot");    
-  #else
-    triggerWatchdog = true;  
-  #endif
+  triggerWatchdog = true;
 }
 
 // perform hang test (watchdog should trigger)
